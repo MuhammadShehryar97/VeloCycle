@@ -1,0 +1,102 @@
+{
+    "id": "route-001",
+    "name": "Night Patrol Alpha",
+    "startPoint": {
+        "id": "sp-1",
+        "name": "Base Office",
+        "order": 1,
+        "hits": 1,
+        "polygon": [
+            {
+                "latitude": 51.5008,
+                "longitude": -0.1425
+            },
+            {
+                "latitude": 51.5012,
+                "longitude": -0.1425
+            },
+            {
+                "latitude": 51.5012,
+                "longitude": -0.1418
+            },
+            {
+                "latitude": 51.5008,
+                "longitude": -0.1418
+            }
+        ]
+    },
+    "checkpoints": [
+        {
+            "id": "cp-1",
+            "name": "Front Gate",
+            "order": 2,
+            "hits": 2,
+            "polygon": [
+                {
+                    "latitude": 51.5015,
+                    "longitude": -0.1415
+                },
+                {
+                    "latitude": 51.5018,
+                    "longitude": -0.1415
+                },
+                {
+                    "latitude": 51.5018,
+                    "longitude": -0.1412
+                },
+                {
+                    "latitude": 51.5015,
+                    "longitude": -0.1412
+                }
+            ]
+        },
+        {
+            "id": "cp-2",
+            "name": "Loading Bay",
+            "order": 3,
+            "hits": 2,
+            "polygon": [
+                {
+                    "latitude": 51.5025,
+                    "longitude": -0.1405
+                },
+                {
+                    "latitude": 51.5028,
+                    "longitude": -0.1405
+                },
+                {
+                    "latitude": 51.5028,
+                    "longitude": -0.1400
+                },
+                {
+                    "latitude": 51.5025,
+                    "longitude": -0.1400
+                }
+            ]
+        }
+    ],
+    "endPoint": {
+        "id": "ep-1",
+        "name": "Base Office",
+        "order": 4,
+        "hits": 1,
+        "polygon": [
+            {
+                "latitude": 51.5008,
+                "longitude": -0.1425
+            },
+            {
+                "latitude": 51.5012,
+                "longitude": -0.1425
+            },
+            {
+                "latitude": 51.5012,
+                "longitude": -0.1418
+            },
+            {
+                "latitude": 51.5008,
+                "longitude": -0.1418
+            }
+        ]
+    }
+}

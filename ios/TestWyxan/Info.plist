@@ -28,14 +28,19 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app uses your location to detect when you enter start, checkpoint, and end zones.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>We need your location to track your run</string>
+	<key>GMSApiKey</key>
+	<string>AIzaSyDQRy2UtOPkzsI8tMfnbxDAhu7QeoIJ-JM</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

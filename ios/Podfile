@@ -17,6 +17,10 @@ end
 target 'TestWyxan' do
   config = use_native_modules!
 
+  # Enable Google Maps provider for react-native-maps on iOS.
+  pod 'react-native-maps/Google', :path => '../node_modules/react-native-maps'
+  
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
