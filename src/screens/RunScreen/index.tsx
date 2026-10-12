@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   PermissionsAndroid,
   Platform,
   Animated,
+  Button,
   ScrollView,
 } from 'react-native';
 import Config from 'react-native-config';
@@ -39,8 +40,8 @@ const RunScreen: React.FC = () => {
     inEndZone, setInEndZone,
     elapsedSec, setElapsedSec,
     panelOpen, setPanelOpen
-  } = useRunStore()
-console.log('location', location)
+  } = useRunStore();
+
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mapRef = useRef<MapView>(null);
@@ -256,169 +257,9 @@ console.log('location', location)
   }
 
   return (
-    <SafeAreaView style={styles.root}>
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={StyleSheet.absoluteFill}
-        showsUserLocation
-        followsUserLocation={phase === 'running'}
-        showsMyLocationButton={false}
-        showsTraffic={false}
-        customMapStyle={darkMapStyle}
-        region={{
-          latitude: location?.latitude ?? 33.738045,
-          longitude: location?.longitude ?? 73.084488,
-          latitudeDelta: 0.012,
-          longitudeDelta: 0.012,
-        }}
-      >
-        {location && (
-          <Marker
-            coordinate={location}
-            title="You"
-            pinColor="blue"
-          />
-        )}
-
-        {completedPolyline.length > 1 && (
-          <Polyline coordinates={completedPolyline} strokeWidth={3} strokeColor="#22C55E" lineDashPattern={[4, 4]} />
-        )}
-
-        {remainingPolyline.length > 1 && (
-          <Polyline coordinates={remainingPolyline} strokeWidth={3} strokeColor="#F59E0B60" />
-        )}
-
-        {(ROUTE_POINTS as RoutePoint[]).map(rp => {
-          const color = pointColor(rp.id);
-          const isCurrent = rp.id === currentTargetId;
-          return (
-            <React.Fragment key={rp.id}>
-              <Polygon
-                coordinates={rp.polygon}
-                strokeColor={color}
-                strokeWidth={isCurrent ? 3 : 1.5}
-                fillColor={isCurrent ? `${color}40` : `${color}18`}
-              />
-              <Marker
-                coordinate={centroid(rp.polygon)}
-                anchor={{ x: 0.5, y: 0.5 }}
-                tracksViewChanges={isCurrent}
-              >
-                <View style={[markerStyles.pin, { borderColor: color, backgroundColor: isCurrent ? color : '#111827' }]}>
-                  <Text style={[markerStyles.pinText, { color: isCurrent ? '#000' : color }]}>
-                    {rp.type === 'START' ? 'S' : rp.type === 'END' ? 'E' : rp.id.replace('CP', '')}
-                  </Text>
-                </View>
-              </Marker>
-            </React.Fragment>
-          );
-        })}
-
-        {phase === 'running' && location && currentTarget && !isAllCpsDone && (
-          <MapViewDirections
-            origin={location}
-            destination={centroid(currentTarget.polygon)}
-            apikey={Config.GOOGLE_MAPS_APIKEY}
-            strokeWidth={4}
-            strokeColor="#F59E0B"
-            mode="BICYCLING"
-            onError={err => console.warn('Directions:', err)}
-          />
-        )}
-        {phase === 'running' && location && isAllCpsDone && ep && (
-          <MapViewDirections
-            origin={location}
-            destination={centroid(ep.polygon)}
-            apikey={Config.GOOGLE_MAPS_APIKEY}
-            strokeWidth={4}
-            strokeColor="#A78BFA"
-            mode="BICYCLING"
-            onError={err => console.warn('Directions:', err)}
-          />
-        )}
-      </MapView>
-
-      <Animated.View style={[styles.topHud, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        <View style={styles.hudLeft}>
-          <Text style={styles.hudTitle}>VELOCYCLE</Text>
-          {phase === 'running' && <Text style={styles.hudTimer}>{formatTime(elapsedSec)}</Text>}
-        </View>
-        {phase === 'running' && (
-          <View style={styles.hudRight}>
-            <Text style={styles.hudProgress}>{Math.min(sequenceIndex, sequence.length - 1)}/{sequence.length - 1}</Text>
-            <Text style={styles.hudProgressLabel}>stops</Text>
-          </View>
-        )}
-      </Animated.View>
-
-      {phase === 'running' && !isAllCpsDone && currentTarget && (
-        <View style={styles.targetBanner}>
-          <View style={styles.targetDot} />
-          <Text style={styles.targetLabel}>NEXT  </Text>
-          <Text style={styles.targetId}>{currentTargetId}</Text>
-        </View>
-      )}
-
-      {phase === 'running' && isAllCpsDone && !isRunCompleted && (
-        <View style={[styles.targetBanner, styles.targetBannerPurple]}>
-          <Text style={styles.targetLabel}>🏁  HEAD TO END POINT</Text>
-        </View>
-      )}
-
-      <View style={styles.bottomPanel}>
-
-        <TouchableOpacity style={styles.panelHandle} onPress={() => setPanelOpen(o => !o)}>
-          <View style={styles.handleBar} />
-        </TouchableOpacity>
-
-        {phase === 'idle' && (
-          <View style={styles.panelContent}>
-            <Text style={styles.panelTitle}>Ready to Ride?</Text>
-            <Text style={styles.panelSub}>
-              {inSpZone
-                ? '✓ You are in the Start Zone'
-                : 'Navigate to the Start Zone (green polygon) to begin.'}
-            </Text>
-            <TouchableOpacity
-              style={[styles.primaryBtn, !inSpZone && styles.primaryBtnDisabled]}
-              onPress={handleStart}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.primaryBtnText}>
-                {inSpZone ? '▶  Start Run' : '⊘  Not in Start Zone'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {phase === 'running' && panelOpen && (
-          <View style={styles.panelContent}>
-            <Text style={styles.panelTitle}>Route Progress</Text>
-            <ScrollView style={styles.progressScroll} showsVerticalScrollIndicator={false}>
-              {progressSteps.map(s => (
-                <ProgressStep {...s} key={s.key} />
-              ))}
-            </ScrollView>
-
-            {isAllCpsDone && inEndZone && (
-              <TouchableOpacity style={styles.endBtn} onPress={handleEndRun} activeOpacity={0.85}>
-                <Text style={styles.endBtnText}>🏁  End Run</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {phase === 'running' && !panelOpen && (
-          <View style={styles.panelCollapsed}>
-            <Text style={styles.collapsedText}>
-              {isAllCpsDone ? '🏁 Head to End Point' : `Next: ${currentTargetId}`}
-            </Text>
-          </View>
-        )}
-      </View>
-
-    </SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme === 'dark' ? '#111827' : '#F9FAFB' }}>
+    <Button title="Toggle Theme" onPress={toggleTheme} />
+  </SafeAreaView>
   );
 };
 
